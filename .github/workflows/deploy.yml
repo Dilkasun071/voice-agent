@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_TOKEN_CLASSIC }}
 
       - name: Set up SSH
         run: |
