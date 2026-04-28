@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          token: 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
+          token: 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
 
       - name: Deploy to Droplet
         run: |
@@ -27,10 +27,8 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H 143.244.129.204 >> ~/.ssh/known_hosts 2>/dev/null
           
-          # Copy current code from GitHub Actions to droplet
           scp -i ~/.ssh/deploy_key -r . root@143.244.129.204:/home/dilkasun071/voice-agent/
           
-          # Deploy on droplet
           ssh -i ~/.ssh/deploy_key root@143.244.129.204 << 'DEPLOY'
           cd /home/dilkasun071/voice-agent
           npm install
