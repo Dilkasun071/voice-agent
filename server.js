@@ -9,7 +9,7 @@ const nodemailer = require('nodemailer');
 
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
-// Nodemailer transporter Kasun Dilshan Priyananda 2
+// Nodemailer transporter Kasun
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
