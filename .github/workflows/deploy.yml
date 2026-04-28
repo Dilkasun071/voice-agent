@@ -12,17 +12,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy via SSH
+      - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Pull and restart app
+      - name: Deploy to Droplet
         run: |
           ssh -o StrictHostKeyChecking=no root@143.244.129.204 << 'DEPLOY'
           cd /home/dilkasun071/voice-agent
           git pull origin main
           npm install
-          pm2 restart voice-agent || pm2 start app.js --name voice-agent
+          pm2 stop voice-agent 2>/dev/null || pm2 restart voice-agent
           pm2 save
+          echo "✓ Deployment successful!"
           DEPLOY
