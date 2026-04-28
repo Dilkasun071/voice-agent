@@ -36,4 +36,6 @@ jobs:
           pm2 start app.js --name voice-agent
           pm2 save
           echo "✓ Deployment successful!"
+          DEPLOY          pm2 save
+          echo "✓ Deployment successful!"
           DEPLOY
