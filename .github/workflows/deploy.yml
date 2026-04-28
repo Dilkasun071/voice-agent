@@ -4,37 +4,25 @@ on:
   push:
     branches:
       - main
-      - master
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          token: ${{ secrets.VOICE_AGENT }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Set up SSH
+      - name: Pull and restart app
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DO_SSH_KEY }}" | base64 -d > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa ${{ secrets.DO_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
-
-      - name: Deploy to droplet
-        run: |
-          ssh -v -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }} << 'DEPLOY'
+          ssh -o StrictHostKeyChecking=no root@143.244.129.204 << 'DEPLOY'
           cd /home/dilkasun071/voice-agent
           git pull origin main
           npm install
-          pm2 stop voice-agent 2>/dev/null || true
-          pm2 start app.js --name voice-agent
+          pm2 restart voice-agent || pm2 start app.js --name voice-agent
           pm2 save
-          echo "✓ Deployment successful!"
           DEPLOY
-
-      - name: Cleanup SSH key
-        if: always()
-        run: rm -f ~/.ssh/id_rsa
