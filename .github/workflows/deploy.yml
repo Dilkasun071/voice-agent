@@ -19,13 +19,13 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.DO_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.DO_SSH_KEY }}" | base64 -d > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.DO_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -t rsa ${{ secrets.DO_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Deploy to droplet
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }} << 'DEPLOY'
+          ssh -v -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }} << 'DEPLOY'
           cd /home/dilkasun071/voice-agent
           git pull origin main
           npm install
