@@ -1,35 +1,35 @@
-name: Deploy Voice Agent to DigitalOcean
+name: Deploy Voice Agent
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-          chmod 700 ~/.ssh
-          chmod 600 ~/.ssh/deploy_key
-
-      - name: Add Host to Known Hosts
-        run: |
-          ssh-keyscan -H 143.244.129.204 >> ~/.ssh/known_hosts 2>/dev/null
-
       - name: Deploy to Droplet
         run: |
-          ssh -i ~/.ssh/deploy_key -o ConnectTimeout=10 -o BatchMode=yes root@143.244.129.204 << 'DEPLOY'
+          mkdir -p ~/.ssh
+          cat > ~/.ssh/deploy_key << 'KEY'
+          -----BEGIN OPENSSH PRIVATE KEY-----
+          b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+          QyNTUxOQAAACDSbO/AyOUDERTcx/RJES3HthDZCqAIHmR5r2ys8E8LhQAAAKC6rgOZuq4D
+          mQAAAAtzc2gtZWQyNTUxOQAAACDSbO/AyOUDERTcx/RJES3HthDZCqAIHmR5r2ys8E8LhQ
+          AAAEDeSSBNXjUYM+gAgw6/pdgtSl/km/xAdAIxdfkF8NR8RNJs78DI5QMRFNzH9EkRLce2
+          ENkKoAgeZHmvbKzwTwuFAAAAHHJvb3RAdWJ1bnR1LWctMnZjcHUtOGdiLWJscjEB
+          -----END OPENSSH PRIVATE KEY-----
+          KEY
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H 143.244.129.204 >> ~/.ssh/known_hosts 2>/dev/null
+          ssh -i ~/.ssh/deploy_key root@143.244.129.204 << 'DEPLOY'
           cd /home/dilkasun071/voice-agent
           git pull origin main
           npm install
-          pm2 stop voice-agent 2>/dev/null || pm2 restart voice-agent || pm2 start app.js --name voice-agent
+          pm2 stop voice-agent 2>/dev/null || true
+          pm2 start app.js --name voice-agent
           pm2 save
           echo "✓ Deployment successful!"
           DEPLOY
